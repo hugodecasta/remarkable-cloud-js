@@ -1,0 +1,26 @@
+{
+  "name": "remarkable-cloud-js",
+  "version": "0.1.0",
+  "description": "reMarkable Cloud API for NodeJs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hugodecasta/remarkable-cloud-js.git"
+  },
+  "keywords": [
+    "reMarkable",
+    "Cloud",
+    "API",
+    "NodeJs",
+    "full"
+  ],
+  "author": "Hugo Castaneda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hugodecasta/remarkable-cloud-js/issues"
+  },
+  "homepage": "https://github.com/hugodecasta/remarkable-cloud-js#readme"
+}
