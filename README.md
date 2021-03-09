@@ -11,8 +11,8 @@ Inspired by
   * [X] Authentication
     - [X] device registration
     - [X] user connection
-  * [ ] data retrieval/push
-    - [ ] files metadata retrieval
+  * [~] data retrieval/push
+    - [X] files metadata retrieval
     - [ ] folders tree retrieval
     - [ ] files content retrieval
     - [ ] upload pdf
