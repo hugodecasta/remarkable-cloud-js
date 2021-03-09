@@ -9,8 +9,8 @@ Inspired by
  ## Features
 
   * [ ] Authentication
-    - device registration
-    - user connection
+    - [ ] device registration
+    - [ ] user connection
   * [ ] data retrieval/push
     - [ ] files metadata retrieval
     - [ ] folders tree retrieval
