@@ -94,8 +94,18 @@ class REMARKABLEAPI {
 
     // ---------------------------------- DATA RETREIAVAL
 
-    async raw_doc_list() {
-        return await this.api({ url: (await this.get_storage_host()) + docs_ep })
+    async docs_list() {
+        let docs = await this.api({ url: (await this.get_storage_host()) + docs_ep })
+        let id_map = Object.fromEntries(docs.map(obj => [obj.ID, obj]))
+        function get_childrens(id) {
+            return docs.filter(({ Parent }) => Parent == id)
+        }
+        function create_paths(id, past_path = '') {
+            id_map[id]._path = past_path + '/' + id_map[id].VissibleName
+            get_childrens(id).forEach(({ ID }) => create_paths(ID, id_map[id]._path))
+        }
+        docs.filter(({ Parent }) => Parent == '').forEach(({ ID }) => create_paths(ID, ''))
+        return docs
     }
 
 }
