@@ -21,6 +21,6 @@ Inspired by
     - [ ] create directory
     - [ ] remove file
     - [ ] remove directory
-  * [ ] cloud live data feed
+  * [ ] cloud live notifications
     - [ ] main data feed (all updates)
     - [ ] subscription data feed (specific file/folder updates)
