@@ -360,6 +360,7 @@ class REMARKABLEAPI {
     }
 
     async mkdir(path) {
+        if (await this.get_path(path)) throw REMARKABLEAPI.exception.path_already_exists_error(path)
         return write_zip(path, { "{ID}.content": {} }, REMARKABLEAPI.type.collection)
     }
 
@@ -426,7 +427,11 @@ class REMARKABLEAPI {
             let send = Object.keys(matching_properties)
                 .map(prop => matching_properties[prop] == event[prop])
                 .reduce((a, b) => a && b, true)
-            if (send) func(event)
+            if (send) {
+                if (event.event != REMARKABLEAPI.notification.event.document_deleted)
+                    event.document = await this.get_ID(event.id)
+                func(event)
+            }
         });
     }
 
