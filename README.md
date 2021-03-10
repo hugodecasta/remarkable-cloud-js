@@ -11,7 +11,7 @@ Inspired by
   * [X] Authentication
     - [X] device registration
     - [X] user connection
-  * [~] data retrieval/push
+  * [ ] data retrieval/push
     - [X] files metadata retrieval
     - [X] folders tree retrieval
     - [X] path exists
