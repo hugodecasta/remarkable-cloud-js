@@ -125,12 +125,13 @@ class REMARKABLEAPI {
 
     async update_status(doc, changed_doc_data) {
         let modification_date = new Date().toISOString()
+        delete doc._path
         let sending_document = {
-            ...changed_doc_data,
-            ID: doc.ID,
+            ...doc,
             Version: doc.Version + 1,
             lastModified: modification_date,
             ModifiedClient: modification_date,
+            ...changed_doc_data,
         }
         let resp = await this.api({
             url: await this.storage_url_maker(update_status_ep),
@@ -182,12 +183,28 @@ class REMARKABLEAPI {
             return { ID: '' }
         } else if (path == 'trash') {
             return { ID: 'trash' }
+        } else if (path == '/') {
+            return { ID: '' }
         }
         return (await this.docs_paths()).filter(({ _path }) => _path == path)[0]
     }
 
+    async fix_corrupted_docs(move_to_path = 'trash') {
+        let new_parent = await this.get_path(move_to_path)
+        if (!new_parent) throw REMARKABLEAPI.exception.path_not_found(move_to_path)
+        let corrupted_docs = await this.corrupted_docs()
+        for (let doc of corrupted_docs) {
+            await this.update_status(doc, { Parent: new_parent.ID })
+        }
+        return corrupted_docs
+    }
+
     async get_ID(id) {
         return (await this.docs_paths()).filter(({ ID }) => ID == id)[0]
+    }
+
+    async get_name(name) {
+        return (await this.docs_paths()).filter(({ VissibleName }) => VissibleName == name)
     }
 
     async upload_zip_data(name, parent_path, type, zip_map) {
@@ -246,6 +263,13 @@ class REMARKABLEAPI {
         )
     }
 
+    async move(path, new_parent_path) {
+        let doc = await this.get_path(path)
+        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        let new_parent_doc = await this.get_path(new_parent_path)
+        if (!new_parent_doc) throw REMARKABLEAPI.exception.path_not_found(new_parent_path)
+        return await this.update_status(doc, { Parent: new_parent_doc.ID })
+    }
 
     // async write_pdf(path, pdf_path) {
     // }

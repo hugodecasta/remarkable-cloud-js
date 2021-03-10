@@ -17,7 +17,7 @@ Inspired by
     - [X] path exists
     - [X] unlink path
     - [X] create directory
-    - [ ] move path
+    - [X] move path
     - [ ] rename path
     - [ ] read/write zip
     - [ ] read/writ pdf
