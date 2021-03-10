@@ -14,11 +14,11 @@ Inspired by
   * [~] data retrieval/push
     - [X] files metadata retrieval
     - [ ] folders tree retrieval
-    - [ ] files content retrieval
-    - [ ] upload pdf
-    - [ ] upload epub
-    - [ ] upload zip
+    - [ ] path exists
+    - [ ] read/write zip
     - [ ] create directory
+    - [ ] read/writ pdf
+    - [ ] read/writ ePub
     - [ ] remove file
     - [ ] remove directory
   * [ ] cloud live notifications
