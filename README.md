@@ -342,7 +342,73 @@ found here
 	- *`matching_properties`* subscription properties ([event object](https://github.com/hugodecasta/remarkable-cloud-js#notification-event-data-representation) propeties to filter the incoming events)
  - **output** Boolean value `true`
 
-### utils API
+### Augmented reMarkable API
+
+#### `docs_paths ()`
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation) array
+
+#### `get_final_path (path)`
+ this method verifies that the path exists
+ - **arguments**
+	- *`path`* existing document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
+#### `get_ID (id)`
+ - **arguments**
+	- *`id`* the existing ePub document's UUID
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
+#### `get_name (name)`
+ - **arguments**
+	- *`name`* the existing document's name
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
+#### `get_path_content (path)`
+ - **arguments**
+	- *`path`* existing folder's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation) array
+
+#### `corrupted_docs ()`
+ - **output** Parent missing [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation) array
+
+#### `trashed_docs ()`
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation) array
+
+#### `upload_zip_data (name, parent_path, type, zip_map, doc = null)`
+ - **arguments**
+	- *`name`* the "new or not" document's name
+	- *`parent_path`* the "new or not" document's parent's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+	- *`type`* the "new or not" document's [type](https://github.com/hugodecasta/remarkable-cloud-js#document-types)
+	- *`zip_map`* the [ZIP MAP](https://github.com/hugodecasta/remarkable-cloud-js#zip-map-data-representation) data to upload
+	- *`doc` (optional, `default = null`)* a pre-existing [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
+### base reMarkable API
+
+#### `raw_docs ()`
+ - **arguments**
+	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+
+#### `get_doc (ID, with_blob)`
+ - **arguments**
+	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+
+#### `upload_request (doc)`
+ - **arguments**
+	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+
+#### `update_status (doc, changed_doc_data)`
+ - **arguments**
+	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+
+#### `delete (doc)`
+ - **arguments**
+	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
 
 ## Limitations
 

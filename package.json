@@ -1,6 +1,6 @@
 {
   "name": "remarkable-cloud-js",
-  "version": "0.14.4",
+  "version": "0.14.5",
   "description": "reMarkable Cloud API for NodeJs",
   "main": "index.js",
   "scripts": {
