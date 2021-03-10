@@ -18,6 +18,7 @@ Inspired by
     - [X] unlink path
     - [X] create directory
     - [ ] move path
+    - [ ] rename path
     - [ ] read/write zip
     - [ ] read/writ pdf
     - [ ] read/writ ePub
