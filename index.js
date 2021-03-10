@@ -32,7 +32,7 @@ async function rm_api({ url, method = 'GET', headers = {}, prop = null, body = n
     let resp = await fetch(url, options)
     if (![200, 201, 202, 203, 204].includes(resp.status)) throw resp
     let parsed_resp = await resp[expected]()
-    if (prop) return parsed_resp[prop]
+    if (prop != null) return parsed_resp[prop]
     return parsed_resp
 }
 
@@ -93,19 +93,38 @@ class REMARKABLEAPI {
         return this.storage_host
     }
 
+    async storage_url_maker(endpoint) {
+        return (await this.get_storage_host()) + endpoint
+    }
+
     // ---------------------------------- API METHOD OVERRIDE
 
     async raw_docs() {
-        return await this.api({ url: (await this.get_storage_host()) + docs_ep })
+        return await this.api({ url: await this.storage_url_maker(docs_ep) })
     }
 
     // async upload_request() {
 
     // }
 
-    // async update_status() {
-
-    // }
+    async update_status(doc, changed_doc_data) {
+        let modification_date = new Date().toISOString()
+        let sending_document = {
+            ...changed_doc_data,
+            ID: doc.ID,
+            Version: doc.Version + 1,
+            lastModified: modification_date,
+            ModifiedClient: modification_date,
+        }
+        let resp = await this.api({
+            url: await this.storage_url_maker(update_status_ep),
+            method: 'PUT',
+            prop: 0,
+            body: [sending_document]
+        })
+        if (!resp.Success) throw REMARKABLEAPI.exception.update_error(resp.Message)
+        return resp.Success
+    }
 
     // async delete() {
 
@@ -135,17 +154,21 @@ class REMARKABLEAPI {
         return (await this.docs_paths()).filter(({ _path }) => _path == path)[0]
     }
 
+    async get_ID(id) {
+        return (await this.docs_paths()).filter(({ ID }) => ID == id)[0]
+    }
+
     // ---------------------------------- DATA RETREIAVAL
 
     async exists(path) {
         return (await this.get_path(path)) != undefined
     }
 
-    // async unlink(path) {
-    //     let doc = await get_path(path)
-    //     if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
-    //     return await this.update_status(doc, { Parent: 'trash' })
-    // }
+    async unlink(path) {
+        let doc = await this.get_path(path)
+        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        return await this.update_status(doc, { Parent: 'trash' })
+    }
 
     // async mkdir(path) {
     // }
@@ -175,7 +198,8 @@ REMARKABLEAPI.device_desc = {
 }
 
 REMARKABLEAPI.exception = {
-    path_not_found: (path) => `path "${path}" not found.`
+    path_not_found: (path) => `path "${path}" not found.`,
+    update_error: (error) => `error while updating: "${error}"`
 }
 
 const all_device_desc = Object.values(REMARKABLEAPI.device_desc).map(sub => Object.values(sub)).flat()

@@ -15,7 +15,7 @@ Inspired by
     - [X] files metadata retrieval
     - [X] folders tree retrieval
     - [X] path exists
-    - [ ] unlink path
+    - [X] unlink path
     - [ ] read/write zip
     - [ ] create directory
     - [ ] read/writ pdf
