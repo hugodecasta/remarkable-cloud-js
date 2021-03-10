@@ -6,7 +6,7 @@ Inspired by
  - jmptable's [ReMarkable Tablet Cloud API](https://www.npmjs.com/package/remarkable-tablet-api)
  - ogdentrod's [reMarkable-typescript](https://www.npmjs.com/package/remarkable-typescript)
 
- ## Features
+## Features
 
   * [X] Authentication
     - [X] device registration
@@ -27,7 +27,7 @@ Inspired by
     - [X] main data feed (all updates)
     - [X] subscription data feed (specific file/folder updates)
 
- ## Main usage
+## Main usage
 
 First time authentication
 
@@ -63,15 +63,15 @@ let rm_api = new RmCJS('< device token >')
 await rm_api.refresh_token()
 
 if(!(await rm_api.exists('/My projects/blueprints'))) {
-  await rm_api.mkdir('/My projects/blueprints')
+	await rm_api.mkdir('/My projects/blueprints')
 }
 
 let blueprints = await rm_api.get_path_content('/My projects/Articles')
 
 for(let blueprint of blueprints) {
-  if(blueprint.VissibleName.includes('to delete')) {
-    await rm_api.delete(blueprint._path)
-  }
+	if(blueprint.VissibleName.includes('to delete')) {
+		await rm_api.delete(blueprint._path)
+	}
 }
 
 await rm.write_pdf('/My projects/Articles/a really cool pdf', './pdfs/article.pdf')
@@ -87,23 +87,120 @@ let rm_api = new RmCJS('< device token >')
 await rm_api.refresh_token()
 
 function notification_handler(event) {
-  console.log('update on', event.document.VissibleName)
+	console.log('update on', event.document.VissibleName)
 }
 
 // ---- event matcher making sure all recieved event come from the remarkable tablet
 let notification_matcher = {
-  sourceDeviceDesc: 'remarkable'
+	sourceDeviceDesc: 'remarkable'
 }
 
 await rm_api.subscribe_to_notifications(notification_handler, notification_matcher)
 
 ```
-
  
- ## API
+## Specifications
 
- ### utils API
+### Device types
 
- ## Limitations
+To use on registration
+
+ - desktop
+	- windows (`desktop-windows`)
+	- macos (`desktop-macos`)
+	- linux (`desktop-linux`)
+ - mobile
+	- android (`mobile-android`)
+	- ios (`mobile-ios`)
+ - browser
+	- chrome (`browser-chrome`)
+
+found here
+```javascript
+const RmCJS = require('remarkable-cloud-js')
+
+RmCJS.device_desc
+
+RmCJS.device_desc.desktop
+	RmCJS.device_desc.desktop.windows
+	RmCJS.device_desc.desktop.macos
+	RmCJS.device_desc.desktop.linux
+
+RmCJS.device_desc.mobile
+	RmCJS.device_desc.mobile.android
+	RmCJS.device_desc.mobile.ios
+	
+RmCJS.device_desc.browser
+	RmCJS.device_desc.browser.chrome
+
+```
+
+### Document types
+
+ - document type (`DocumentType`) represent a "file" (notebook, pdf, epub, etc.)
+ - collection type (`CollectionType`) represent a "folder"
+
+found here
+```javascript
+const RmCJS = require('remarkable-cloud-js')
+
+RmCJS.type
+
+RmCJS.type.document
+RmCJS.type.collection
+
+```
+
+### Document representation
+
+(extended from the standard reMarkable representation)
+
+```javascript
+{
+	ID: '< document UUID >',
+    Version: 1,
+    Message: '',
+    Success: true,
+    BlobURLGet: '',
+    BlobURLGetExpires: '0001-01-01T00:00:00Z',
+    ModifiedClient: '< last modification date string >',
+    Type: '< document type >',
+    VissibleName: '< document name >',
+    CurrentPage: 0,
+    Bookmarked: false,
+    Parent: '< document parent UUID >',
+    _path: '< detected absolute path >'
+}
+```
+
+### Notification events
+
+ - document added (`DocAdded`) when a document is added, updated (its content) or moved (including to the trash)
+ - document deleted (`DocDeleted`) when a document is removed from the cloud (not only trashed)
+
+found here
+```javascript
+const RmCJS = require('remarkable-cloud-js')
+
+RmCJS.notification.event
+
+RmCJS.notification.event.document_added
+RmCJS.notification.event.document_deleted
+
+```
+
+### Exceptions
+
+ - `path_not_found` occurs if a required path cannot be found
+ - `update_error` occurs if an error is thrown while updating a document
+ - `upload_request_error` occurs if an error is thrown while uploading a document
+ - `delete_error` occurs if an error is thrown while deleting a document
+ - `path_already_exists_error` occurs if trying to create a path already existing
+
+## API
+
+### utils API
+
+## Limitations
 
 Cloud functionalities are not 100% reliable on the tablet and the application, it is thus recommended to use the cloud api with care and if possible with the tablet turned on and connected.
