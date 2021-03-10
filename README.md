@@ -1,4 +1,4 @@
-# remarkable-cloud-js
+# reMarkable-cloud-js
 reMarkable Cloud API for NodeJS
 
 Inspired by
@@ -135,6 +135,44 @@ RmCJS.device_desc.browser
 
 ```
 
+### ZIP MAP data representation
+
+In the reMarkable case, ZIP data contains the documents ID in its root. As it is often not possible to know this ID while writing zip data, we propose the following zip data representation to post in zip_map APIs:
+
+ - the zip map is reprenseted by a flat JSON object.
+ - each property is a path.
+	- a path containing the ID uses the `{ID}` string to indicate the position of this ID
+ - each value can be either a string, a buffer or a JSON object
+
+ZIP MAP sample
+```javascript
+const fs = require('fs')
+
+let pdf_zip_map = {
+	'{ID}.content': {
+		extraMetadata: {},
+		fileType: file_type,
+		lastOpenedPage: 0,
+		lineHeight: -1,
+		margins: 180,
+		pageCount: 0,
+		textScale: 1,
+		transform: {}
+	},
+	'{ID}.pagedata': [],
+	'{ID}.pdf': fs.readFileSync('< pdf file path >')
+}
+
+```
+
+### Document path
+
+The reMarkable document path are absolute and starts with the root folder `/`
+ - Sample folder: `/My project/blueprint`
+ - Sample document: `/My project/blueprint/project one`
+
+Note that no extension are used in the reMarkable filesystem
+
 ### Document types
 
  - document type (`DocumentType`) represent a "file" (notebook, pdf, epub, etc.)
@@ -157,7 +195,7 @@ RmCJS.type.collection
 
 ```javascript
 {
-	ID: '< document UUID >',
+    ID: '< document UUID >',
     Version: 1,
     Message: '',
     Success: true,
@@ -198,6 +236,79 @@ RmCJS.notification.event.document_deleted
  - `path_already_exists_error` occurs if trying to create a path already existing
 
 ## API
+
+Storage read / write api
+
+Basic data manipulation
+### `exists (path)`
+ - **arguments**
+	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to check
+ - **output** Boolean value `true` or `false`
+
+### `unlink (path)`
+ - **arguments**
+	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to trash
+ - **output** Boolean value `true` or `false`
+
+### `move (from_path, to_parent)`
+ - **arguments**
+	- *`from_path`* the moving document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+	- *`to_parent`* the parent folder's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+ - **output** Document (the new document data)
+
+### `rename (path, new_name)`
+ - **arguments**
+	- *`path`* the renaming document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+	- *`new_name`* the document's new name
+ - **output** Document (the new document data)
+
+
+File content
+### `write_zip (path, zip_map, type)`
+ - **arguments**
+	- *`path`* the document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) for data writing (can be existing or not)
+	- *`zip_map`* the [ZIP MAP](https://github.com/hugodecasta/remarkable-cloud-js#zip-map-data-representation) data
+	- *`type`* the [document type](https://github.com/hugodecasta/remarkable-cloud-js#document-types)
+ - **output** Boolean value `true` or `false`
+
+### `read_zip (path)`
+ - **arguments**
+	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to check
+ - **output** Boolean value `true` or `false`
+
+
+### `mkdir (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
+### `copy (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
+
+Specific file content
+### `write_pdf* (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
+### `read_pdf (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
+### `write_epub (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
+### `read_epub (path)`
+ - **arguments**
+	- *`path`* the path to check
+ - **output** Boolean value `true` or `false`
+
 
 ### utils API
 
