@@ -1,5 +1,6 @@
 const fetch = require('node-fetch')
 const uuid = require('uuid').v4
+const ADMZIP = require('adm-zip');
 
 // ---------------------------------------------------------- DATA
 
@@ -92,10 +93,28 @@ class REMARKABLEAPI {
         return this.storage_host
     }
 
-    // ---------------------------------- DATA RETREIAVAL
+    // ---------------------------------- API METHOD OVERRIDE
 
-    async docs_list() {
-        let docs = await this.api({ url: (await this.get_storage_host()) + docs_ep })
+    async raw_docs() {
+        return await this.api({ url: (await this.get_storage_host()) + docs_ep })
+    }
+
+    // async upload_request() {
+
+    // }
+
+    // async update_status() {
+
+    // }
+
+    // async delete() {
+
+    // }
+
+    // ---------------------------------- UTILS
+
+    async docs_paths() {
+        let docs = await this.raw_docs()
         let id_map = Object.fromEntries(docs.map(obj => [obj.ID, obj]))
         function get_childrens(id) {
             return docs.filter(({ Parent }) => Parent == id)
@@ -107,6 +126,35 @@ class REMARKABLEAPI {
         docs.filter(({ Parent }) => Parent == '').forEach(({ ID }) => create_paths(ID, ''))
         return docs
     }
+
+    async corrupted_docs() {
+        return (await this.docs_paths()).filter(({ Parent, _path }) => Parent != 'trash' && _path === undefined)
+    }
+
+    async get_path(path) {
+        return (await this.docs_paths()).filter(({ _path }) => _path == path)[0]
+    }
+
+    // ---------------------------------- DATA RETREIAVAL
+
+    async exists(path) {
+        return (await this.get_path(path)) != undefined
+    }
+
+    // async unlink(path) {
+    //     let doc = await get_path(path)
+    //     if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+    //     return await this.update_status(doc, { Parent: 'trash' })
+    // }
+
+    // async mkdir(path) {
+    // }
+
+    // async write_pdf(path, pdf_path) {
+    // }
+
+    // async write_epub(path, epub_path) {
+    // }
 
 }
 
@@ -124,6 +172,10 @@ REMARKABLEAPI.device_desc = {
     browser: {
         chrome: 'browser-chrome'
     }
+}
+
+REMARKABLEAPI.exception = {
+    path_not_found: (path) => `path "${path}" not found.`
 }
 
 const all_device_desc = Object.values(REMARKABLEAPI.device_desc).map(sub => Object.values(sub)).flat()

@@ -13,14 +13,13 @@ Inspired by
     - [X] user connection
   * [~] data retrieval/push
     - [X] files metadata retrieval
-    - [ ] folders tree retrieval
-    - [ ] path exists
+    - [X] folders tree retrieval
+    - [X] path exists
+    - [ ] unlink path
     - [ ] read/write zip
     - [ ] create directory
     - [ ] read/writ pdf
     - [ ] read/writ ePub
-    - [ ] remove file
-    - [ ] remove directory
   * [ ] cloud live notifications
     - [ ] main data feed (all updates)
     - [ ] subscription data feed (specific file/folder updates)

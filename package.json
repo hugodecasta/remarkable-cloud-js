@@ -1,6 +1,6 @@
 {
   "name": "remarkable-cloud-js",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "description": "reMarkable Cloud API for NodeJs",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/hugodecasta/remarkable-cloud-js#readme",
   "dependencies": {
+    "adm-zip": "^0.5.4",
     "node-fetch": "^2.6.1",
     "uuid": "^8.3.2"
   }
