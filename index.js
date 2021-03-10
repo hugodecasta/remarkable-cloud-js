@@ -271,6 +271,12 @@ class REMARKABLEAPI {
         return await this.update_status(doc, { Parent: new_parent_doc.ID })
     }
 
+    async rename(path, new_name) {
+        let doc = await this.get_path(path)
+        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        return await this.update_status(doc, { VissibleName: new_name })
+    }
+
     // async write_pdf(path, pdf_path) {
     // }
 
