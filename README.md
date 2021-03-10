@@ -137,7 +137,7 @@ RmCJS.device_desc.browser
 
 ### ZIP MAP data representation
 
-In the reMarkable case, ZIP data representing file content often uses the document's ID as a path component. As it is (most of the time) impossible to know this ID in advance, we propose the following zip data representation to post in zip_map APIs:
+In the reMarkable case, ZIP data representing file content often uses the document's ID as a path component. As it is (most of the time) impossible to know this ID in advance, we propose the following zip data representation to use in some APIs arguments:
 
  - the ZIP MAP object is reprenseted by a flat JSON object.
  - each property represents a path.
