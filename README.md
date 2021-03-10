@@ -211,6 +211,10 @@ RmCJS.type.collection
 }
 ```
 
+#### Standard reMarkable Document representation
+
+The "un-extended document representation" lacks the `_path` component
+
 ### Notification event types
 
  - document added (`DocAdded`) when a document is added, updated (its content) or moved (including to the trash)
@@ -355,7 +359,7 @@ found here
 
 #### `get_ID (id)`
  - **arguments**
-	- *`id`* the existing ePub document's UUID
+	- *`id`* the existing document's UUID
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
 #### `get_name (name)`
@@ -374,7 +378,7 @@ found here
 #### `trashed_docs ()`
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation) array
 
-#### `upload_zip_data (name, parent_path, type, zip_map, doc = null)`
+#### `upload_zip_data (name, parent_path, type, zip_map [, doc])`
  - **arguments**
 	- *`name`* the "new or not" document's name
 	- *`parent_path`* the "new or not" document's parent's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
@@ -386,29 +390,28 @@ found here
 ### base reMarkable API
 
 #### `raw_docs ()`
- - **arguments**
-	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
- - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+ - **output** [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation) array
 
-#### `get_doc (ID, with_blob)`
+#### `get_doc (ID [,with_blob])`
  - **arguments**
-	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
- - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+	- *`ID`* document's UUID
+	- *`with_blob` (optional, `default = true`)* indicated if the document should come with it's blob dowloading links
+ - **output** [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation)
 
-#### `upload_request (doc)`
+#### `upload_request ([doc])`
  - **arguments**
-	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
- - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+	- *`doc` (optional, `default = null`)* a pre-existing [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation)
+ - **output** [fetch](https://www.npmjs.com/package/node-fetch) json response container this (among others) `ID` and `BlobURLPut`
 
 #### `update_status (doc, changed_doc_data)`
  - **arguments**
-	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
- - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+	- *`doc`* base [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation) data containing at minimum the `ID` and `Version`
+ - **output** the updating sent [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation)
 
 #### `delete (doc)`
  - **arguments**
-	- *`path`* the existing ePub document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
- - **output** ePub [Buffer](https://nodejs.org/api/buffer.html) file data
+	- *`doc`* deleting [reMarkable Document](https://github.com/hugodecasta/remarkable-cloud-js#standard-remarkable-document-representation)
+ - **output** Boolean value `true` or `false`
 
 ## Limitations
 
