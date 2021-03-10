@@ -416,7 +416,7 @@ class REMARKABLEAPI {
 
     // ---------------------------------- NOTIFICATION API
 
-    async subscribe_to_notifications(func, matching_properties = []) {
+    async subscribe_to_notifications(handler, matching_properties = []) {
         let ws = await this.get_notification_ws()
         ws.on('message', async (raw_data) => {
             let data = JSON.parse(raw_data)
@@ -430,9 +430,10 @@ class REMARKABLEAPI {
             if (send) {
                 if (event.event != REMARKABLEAPI.notification.event.document_deleted)
                     event.document = await this.get_ID(event.id)
-                func(event)
+                handler(event)
             }
         });
+        return true
     }
 
 }
