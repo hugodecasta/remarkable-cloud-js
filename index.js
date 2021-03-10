@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const uuid = require('uuid').v4
 const ADMZIP = require('adm-zip');
 const fs = require('fs')
+const WEBSOCKET = require('ws')
 
 // ---------------------------------------------------------- DATA
 
@@ -23,6 +24,9 @@ const docs_ep = '/document-storage/json/2/docs'
 const upload_request_ep = '/document-storage/json/2/upload/request'
 const update_status_ep = '/document-storage/json/2/upload/update-status'
 const delete_ep = '/document-storage/json/2/delete'
+
+// ---- NOTIFICATIONS
+const notification_ep = '/notifications/ws/json/1'
 
 // ---------------------------------------------------------- UTILS
 
@@ -72,6 +76,9 @@ class REMARKABLEAPI {
         this.user_token = null
 
         this.storage_host = null
+        this.notification_host = null
+
+        this.notification_ws = null
     }
 
     // ---------------------------------- AUTHENTICATION
@@ -98,6 +105,7 @@ class REMARKABLEAPI {
             url: auth_host + auth_user_ep,
             method: 'POST',
             headers: {
+                'User-Agent': user_agent,
                 Authorization: `Bearer ${this.device_token}`
             },
             expected: 'text'
@@ -109,6 +117,7 @@ class REMARKABLEAPI {
 
     async api({ url, method = 'GET', headers = {}, prop = null, body = null, raw_body = null, expected = 'json' }) {
         if (!this.user_token) throw 'api must be authenticated first using "refresh_token"'
+        headers['User-Agent'] = user_agent
         headers.Authorization = `Bearer ${this.user_token}`
         let resp = await rm_api({ url, method, headers, prop, body, raw_body, expected })
         return resp
@@ -121,6 +130,24 @@ class REMARKABLEAPI {
 
     async storage_url_maker(endpoint) {
         return (await this.get_storage_host()) + endpoint
+    }
+
+    async get_notification_host() {
+        if (!this.notification_host)
+            this.notification_host = 'wss://' + await rm_api({ url: discovery_host + notifications_discovery_ep, prop: 'Host' })
+        return this.notification_host
+    }
+
+    async get_notification_ws() {
+        if (!this.user_token) throw 'api must be authenticated first using "refresh_token"'
+        if (!this.notification_ws)
+            this.notification_ws = new WEBSOCKET((await this.get_notification_host()) + notification_ep, {
+                headers: {
+                    'User-Agent': user_agent,
+                    'Authorization': `Bearer ${this.user_token}`
+                }
+            });
+        return this.notification_ws
     }
 
     // ---------------------------------- API METHOD OVERRIDE
@@ -386,6 +413,23 @@ class REMARKABLEAPI {
         return await this.read_file_type(path, 'epub')
     }
 
+    // ---------------------------------- NOTIFICATION API
+
+    async subscribe_to_notifications(func, matching_properties = []) {
+        let ws = await this.get_notification_ws()
+        ws.on('message', async (raw_data) => {
+            let data = JSON.parse(raw_data)
+            let event = {
+                ...data.message.attributes,
+                publish_time: data.message.publish_time
+            }
+            let send = Object.keys(matching_properties)
+                .map(prop => matching_properties[prop] == event[prop])
+                .reduce((a, b) => a && b, true)
+            if (send) func(event)
+        });
+    }
+
 }
 
 // ---------------------------------------------------------- DEVICE DESC
@@ -407,6 +451,13 @@ REMARKABLEAPI.device_desc = {
 REMARKABLEAPI.type = {
     document: 'DocumentType',
     collection: 'CollectionType'
+}
+
+REMARKABLEAPI.notification = {
+    event: {
+        document_added: 'DocAdded',
+        document_deleted: 'DocDeleted'
+    }
 }
 
 REMARKABLEAPI.exception = {

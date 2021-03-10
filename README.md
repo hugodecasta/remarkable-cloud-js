@@ -11,7 +11,7 @@ Inspired by
   * [X] Authentication
     - [X] device registration
     - [X] user connection
-  * [ ] data retrieval/push
+  * [X] data retrieval/push
     - [X] files metadata retrieval
     - [X] folders tree retrieval
     - [X] path exists
@@ -23,9 +23,9 @@ Inspired by
     - [X] copy path
     - [X] read/write pdf
     - [X] read/write ePub
-  * [ ] cloud live notifications
-    - [ ] main data feed (all updates)
-    - [ ] subscription data feed (specific file/folder updates)
+  * [X] cloud live notifications
+    - [X] main data feed (all updates)
+    - [X] subscription data feed (specific file/folder updates)
 
  ## Limitations
 
