@@ -20,7 +20,7 @@ Inspired by
     - [X] move path
     - [X] rename path
     - [X] read/write zip
-    - [ ] copy path
+    - [X] copy path
     - [ ] read/writ pdf
     - [ ] read/writ ePub
   * [ ] cloud live notifications

@@ -53,6 +53,14 @@ function create_zip_buffer(zip_map, ID) {
     return zip.toBuffer()
 }
 
+function raw_path_elements(full_path) {
+    if (!full_path) return full_path
+    let path_elements = full_path.split('/')
+    let name = path_elements.pop()
+    let parent_path = path_elements.join('/')
+    return { name, parent_path }
+}
+
 // ---------------------------------------------------------- MAIN CLASS
 class REMARKABLEAPI {
 
@@ -163,7 +171,7 @@ class REMARKABLEAPI {
             body: [sending_document]
         })
         if (!resp.Success) throw REMARKABLEAPI.exception.update_error(resp.Message)
-        return resp.Success
+        return sending_document
     }
 
     async delete(doc) {
@@ -218,6 +226,10 @@ class REMARKABLEAPI {
         return doc
     }
 
+    async get_path_content(path) {
+        return (await this.docs_paths()).filter(({ _path }) => raw_path_elements(_path)?.parent_path == path)
+    }
+
     async fix_corrupted_docs(move_to_path = 'trash') {
         let new_parent = await this.get_path(move_to_path)
         if (!new_parent) throw REMARKABLEAPI.exception.path_not_found(move_to_path)
@@ -236,11 +248,11 @@ class REMARKABLEAPI {
         return (await this.docs_paths()).filter(({ VissibleName }) => VissibleName == name)
     }
 
-    async path_elements(full_path) {
+    async path_elements(full_path, check_exists = true) {
         let path_elements = full_path.split('/')
         let name = path_elements.pop()
         let parent_path = path_elements.join('/')
-        await this.get_final_path(parent_path)
+        if (check_exists) await this.get_final_path(parent_path)
         return { name, parent_path }
     }
 
@@ -273,16 +285,6 @@ class REMARKABLEAPI {
     async unlink(path) {
         let doc = await this.get_final_path(path)
         return await this.delete(doc)
-    }
-
-    async mkdir(path) {
-        let { name, parent_path } = await this.path_elements(path)
-        let zip_content = { '{ID}.content': {} }
-        return await this.upload_zip_data(
-            name, parent_path,
-            REMARKABLEAPI.type.collection,
-            zip_content
-        )
     }
 
     async move(path, new_parent_path) {
@@ -329,6 +331,24 @@ class REMARKABLEAPI {
         )
     }
 
+    async mkdir(path) {
+        return write_zip(path, { "{ID}.content": {} }, REMARKABLEAPI.type.collection)
+    }
+
+    async copy(from_path, to_path, recursive = true) {
+        if (await this.get_path(to_path)) throw REMARKABLEAPI.exception.path_already_exists_error(to_path)
+        let doc = await this.get_final_path(from_path)
+        let zip_map = await this.read_zip(from_path)
+        let new_doc = await this.write_zip(to_path, zip_map, doc.Type)
+        if (recursive && doc.Type == REMARKABLEAPI.type.collection) {
+            let sub_docs = await this.get_path_content(from_path)
+            for (let sub_doc of sub_docs)
+                await this.copy(sub_doc._path, to_path + '/' + sub_doc.VissibleName)
+
+        }
+        return new_doc
+    }
+
     // async write_pdf(path, pdf_path) {
     // }
 
@@ -360,9 +380,10 @@ REMARKABLEAPI.type = {
 
 REMARKABLEAPI.exception = {
     path_not_found: (path) => `path "${path}" not found.`,
-    update_error: (error) => `error while updating: "${error}"`,
-    upload_request_error: (error) => `error while requesting for upload: "${error}"`,
-    delete_error: (error) => `error while deleting: "${error}"`
+    update_error: (error) => `error while updating: "${error}".`,
+    upload_request_error: (error) => `error while requesting for upload: "${error}".`,
+    delete_error: (error) => `error while deleting: "${error}".`,
+    path_already_exists_error: (error) => `path "${error}" already exists.`
 }
 
 const all_device_desc = Object.values(REMARKABLEAPI.device_desc).map(sub => Object.values(sub)).flat()
