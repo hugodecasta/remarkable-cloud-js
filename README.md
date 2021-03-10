@@ -339,7 +339,7 @@ found here
 #### `subscribe_to_notifications (handler, matching_properties)`
  - **arguments**
 	- *`handler`* callback function on which to pass the [event](https://github.com/hugodecasta/remarkable-cloud-js#notification-event-data-representation) data
-	- *`matching_properties`* subscription properties ([event object](https://github.com/hugodecasta/) propeties to filter the incoming events)
+	- *`matching_properties`* subscription properties ([event object](https://github.com/hugodecasta/remarkable-cloud-js#notification-event-data-representation) propeties to filter the incoming events)
  - **output** Boolean value `true`
 
 ### utils API
