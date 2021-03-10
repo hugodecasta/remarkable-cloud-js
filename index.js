@@ -1,6 +1,7 @@
 const fetch = require('node-fetch')
 const uuid = require('uuid').v4
 const ADMZIP = require('adm-zip');
+const fs = require('fs')
 
 // ---------------------------------------------------------- DATA
 
@@ -349,8 +350,26 @@ class REMARKABLEAPI {
         return new_doc
     }
 
-    // async write_pdf(path, pdf_path) {
-    // }
+    async write_pdf(path, pdf_path) {
+        return await this.write_zip(path, {
+            '{ID}.content': {
+                extraMetadata: {},
+                fileType: 'pdf',
+                lastOpenedPage: 0,
+                lineHeight: -1,
+                margins: 180,
+                pageCount: 0,
+                textScale: 1,
+                transform: {},
+            },
+            '{ID}.pagedata': [],
+            '{ID}.pdf': fs.readFileSync(pdf_path)
+        }, REMARKABLEAPI.type.document)
+    }
+
+    async read_pdf(path) {
+        return (await this.read_zip(path))['{ID}.pdf']
+    }
 
     // async write_epub(path, epub_path) {
     // }

@@ -21,7 +21,7 @@ Inspired by
     - [X] rename path
     - [X] read/write zip
     - [X] copy path
-    - [ ] read/write pdf
+    - [X] read/write pdf
     - [ ] read/write ePub
   * [ ] cloud live notifications
     - [ ] main data feed (all updates)
