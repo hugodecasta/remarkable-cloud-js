@@ -141,7 +141,7 @@ In the reMarkable case, ZIP data representing file content often uses the docume
 
  - the ZIP MAP object is reprenseted by a flat JSON object.
  - each property represents a path.
-	- a path containing the ID uses the `{ID}` string to indicate the position of this ID
+	- a path containing the ID uses the `{ID}` string to indicate its position in the path
  - each value can be either a `string`, a `buffer` or a `JSON object`
 
 ZIP MAP sample
