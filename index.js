@@ -37,6 +37,22 @@ async function rm_api({ url, method = 'GET', headers = {}, prop = null, body = n
     return parsed_resp
 }
 
+function create_zip_buffer(zip_map, ID) {
+    let final_zip_map = Object.fromEntries(Object.entries(zip_map)
+        .map(([file_path, content]) => [
+            file_path.replace('{ID}', ID),
+            Buffer.isBuffer(content) ?
+                content :
+                typeof content == 'object' ?
+                    Buffer.from(JSON.stringify(content)) :
+                    Buffer.from(content)
+        ])
+    )
+    let zip = new ADMZIP()
+    Object.entries(final_zip_map).forEach(([file_path, content_buffer]) => zip.addFile(file_path, content_buffer))
+    return zip.toBuffer()
+}
+
 // ---------------------------------------------------------- MAIN CLASS
 class REMARKABLEAPI {
 
@@ -104,12 +120,19 @@ class REMARKABLEAPI {
         return await this.api({ url: await this.storage_url_maker(docs_ep) })
     }
 
-    async upload_request() {
-        let ID = uuid()
+    async get_doc(ID, with_blob = true) {
+        return await this.api({
+            url: `${await this.storage_url_maker(docs_ep)}?doc=${ID}&withBlob=${JSON.stringify(with_blob)}`,
+            prop: 0
+        })
+    }
+
+    async upload_request(doc = null) {
+        let ID = doc?.ID ?? uuid()
         let modification_date = new Date().toISOString()
         let sending_document = {
             ID,
-            Version: 1,
+            Version: (doc?.Version ?? 0) + 1,
             lastModified: modification_date,
             ModifiedClient: modification_date,
         }
@@ -189,6 +212,12 @@ class REMARKABLEAPI {
         return (await this.docs_paths()).filter(({ _path }) => _path == path)[0]
     }
 
+    async get_final_path(path) {
+        let doc = await this.get_path(path)
+        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        return doc
+    }
+
     async fix_corrupted_docs(move_to_path = 'trash') {
         let new_parent = await this.get_path(move_to_path)
         if (!new_parent) throw REMARKABLEAPI.exception.path_not_found(move_to_path)
@@ -207,24 +236,20 @@ class REMARKABLEAPI {
         return (await this.docs_paths()).filter(({ VissibleName }) => VissibleName == name)
     }
 
-    async upload_zip_data(name, parent_path, type, zip_map) {
+    async path_elements(full_path) {
+        let path_elements = full_path.split('/')
+        let name = path_elements.pop()
+        let parent_path = path_elements.join('/')
+        await this.get_final_path(parent_path)
+        return { name, parent_path }
+    }
+
+    async upload_zip_data(name, parent_path, type, zip_map, doc = null) {
         let parent = await this.get_path(parent_path)
         if (!parent) throw REMARKABLEAPI.exception.path_not_found(parent_path)
-        let { ID, BlobURLPut } = await this.upload_request()
-        let zip_map_named = Object.fromEntries(Object.entries(zip_map)
-            .map(([file_path, content]) => [
-                `${ID}.${file_path}`,
-                Buffer.isBuffer(content) ?
-                    content :
-                    typeof content == 'object' ?
-                        Buffer.from(JSON.stringify(content)) :
-                        Buffer.from(content)
-            ])
-        )
-        let zip = new ADMZIP()
-        Object.entries(zip_map_named).forEach(([file_path, content_buffer]) => zip.addFile(file_path, content_buffer))
-        let zip_buffer = zip.toBuffer()
-        let resp = await this.api({
+        let { ID, BlobURLPut } = await this.upload_request(doc)
+        let zip_buffer = create_zip_buffer(zip_map, ID)
+        await this.api({
             url: BlobURLPut,
             method: 'PUT',
             raw_body: zip_buffer,
@@ -232,11 +257,11 @@ class REMARKABLEAPI {
         })
         let base_document = {
             Parent: parent.ID,
-            Bookmarked: false,
+            Bookmarked: doc?.Bookmarked,
             Type: type,
             VissibleName: name,
         }
-        return await this.update_status({ ID, Version: 0 }, base_document)
+        return await this.update_status({ ID, Version: doc?.Version ?? 0 }, base_document)
     }
 
     // ---------------------------------- DATA RETREIAVAL
@@ -246,35 +271,62 @@ class REMARKABLEAPI {
     }
 
     async unlink(path) {
-        let doc = await this.get_path(path)
-        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        let doc = await this.get_final_path(path)
         return await this.delete(doc)
-        // return await this.update_status(doc, { Parent: 'trash' })
     }
 
     async mkdir(path) {
-        let path_elements = path.split('/')
-        let name = path_elements.pop()
-        let zip_content = { 'content': '{}' }
+        let { name, parent_path } = await this.path_elements(path)
+        let zip_content = { '{ID}.content': {} }
         return await this.upload_zip_data(
-            name, path_elements.join('/'),
+            name, parent_path,
             REMARKABLEAPI.type.collection,
             zip_content
         )
     }
 
     async move(path, new_parent_path) {
-        let doc = await this.get_path(path)
-        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        let doc = await this.get_final_path(path)
         let new_parent_doc = await this.get_path(new_parent_path)
         if (!new_parent_doc) throw REMARKABLEAPI.exception.path_not_found(new_parent_path)
         return await this.update_status(doc, { Parent: new_parent_doc.ID })
     }
 
     async rename(path, new_name) {
-        let doc = await this.get_path(path)
-        if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
+        let doc = await this.get_final_path(path)
         return await this.update_status(doc, { VissibleName: new_name })
+    }
+
+    async read_zip(path) {
+        let doc = await this.get_final_path(path)
+        let { BlobURLGet } = await this.get_doc(doc.ID)
+        let buffer = await rm_api({
+            url: BlobURLGet,
+            expected: 'buffer'
+        })
+        let zip = new ADMZIP(buffer)
+        return Object.fromEntries(zip.getEntries().map(data => {
+            let raw_data = data.getData()
+            let parsed_data = raw_data
+            try {
+                parsed_data = JSON.parse(raw_data)
+            } catch (e) {
+                parsed_data = raw_data
+            }
+            let name = data.entryName.replace(doc.ID, '{ID}')
+            return [name, parsed_data]
+        }))
+    }
+
+    async write_zip(path, zip_map, type) {
+        let doc = await this.get_path(path)
+        let { name, parent_path } = await this.path_elements(path)
+        return await this.upload_zip_data(
+            name, parent_path,
+            type,
+            zip_map,
+            doc
+        )
     }
 
     // async write_pdf(path, pdf_path) {

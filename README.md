@@ -19,7 +19,8 @@ Inspired by
     - [X] create directory
     - [X] move path
     - [X] rename path
-    - [ ] read/write zip
+    - [X] read/write zip
+    - [ ] copy path
     - [ ] read/writ pdf
     - [ ] read/writ ePub
   * [ ] cloud live notifications
