@@ -22,7 +22,11 @@ Inspired by
     - [X] read/write zip
     - [X] copy path
     - [X] read/write pdf
-    - [ ] read/write ePub
+    - [X] read/write ePub
   * [ ] cloud live notifications
     - [ ] main data feed (all updates)
     - [ ] subscription data feed (specific file/folder updates)
+
+ ## Limitations
+
+Cloud functionalities are not 100% reliable on the tablet and the application, it is thus recommended to use the cloud api with care and if possible with the tablet turned on and connected.
