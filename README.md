@@ -16,8 +16,8 @@ Inspired by
     - [X] folders tree retrieval
     - [X] path exists
     - [X] unlink path
-    - [ ] read/write zip
     - [ ] create directory
+    - [ ] read/write zip
     - [ ] read/writ pdf
     - [ ] read/writ ePub
   * [ ] cloud live notifications
