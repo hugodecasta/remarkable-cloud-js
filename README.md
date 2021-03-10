@@ -237,9 +237,8 @@ RmCJS.notification.event.document_deleted
 
 ## API
 
-Storage read / write api
+### Basic data manipulation
 
-Basic data manipulation
 ### `exists (path)`
  - **arguments**
 	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to check
@@ -263,7 +262,8 @@ Basic data manipulation
  - **output** Document (the new document data)
 
 
-File content
+### File content
+
 ### `write_zip (path, zip_map, type)`
  - **arguments**
 	- *`path`* the document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) for data writing (can be existing or not)
@@ -288,7 +288,8 @@ File content
  - **output** Boolean value `true` or `false`
 
 
-Specific file content
+### Specific file content
+
 ### `write_pdf* (path)`
  - **arguments**
 	- *`path`* the path to check
