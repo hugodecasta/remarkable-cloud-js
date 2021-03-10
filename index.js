@@ -25,12 +25,13 @@ const delete_ep = '/document-storage/json/2/delete'
 
 // ---------------------------------------------------------- UTILS
 
-async function rm_api({ url, method = 'GET', headers = {}, prop = null, body = null, expected = 'json' }) {
+async function rm_api({ url, method = 'GET', headers = {}, prop = null, body = null, raw_body = null, expected = 'json' }) {
     let options = { method, headers }
     headers['User-Agent'] = user_agent
-    if (body) options.body = JSON.stringify(body)
+    if (body || raw_body) options.body = raw_body ? raw_body : JSON.stringify(body)
     let resp = await fetch(url, options)
     if (![200, 201, 202, 203, 204].includes(resp.status)) throw resp
+    if (!expected) return resp
     let parsed_resp = await resp[expected]()
     if (prop != null) return parsed_resp[prop]
     return parsed_resp
@@ -81,10 +82,10 @@ class REMARKABLEAPI {
 
     // ---------------------------------- AUTHED API CALL
 
-    async api({ url, method = 'GET', headers = {}, prop = null, body = null, expected = 'json' }) {
+    async api({ url, method = 'GET', headers = {}, prop = null, body = null, raw_body = null, expected = 'json' }) {
         if (!this.user_token) throw 'api must be authenticated first using "refresh_token"'
         headers.Authorization = `Bearer ${this.user_token}`
-        let resp = await rm_api({ url, method, headers, prop, body, expected })
+        let resp = await rm_api({ url, method, headers, prop, body, raw_body, expected })
         return resp
     }
 
@@ -103,9 +104,24 @@ class REMARKABLEAPI {
         return await this.api({ url: await this.storage_url_maker(docs_ep) })
     }
 
-    // async upload_request() {
-
-    // }
+    async upload_request() {
+        let ID = uuid()
+        let modification_date = new Date().toISOString()
+        let sending_document = {
+            ID,
+            Version: 1,
+            lastModified: modification_date,
+            ModifiedClient: modification_date,
+        }
+        let resp = await this.api({
+            url: await this.storage_url_maker(upload_request_ep),
+            method: 'PUT',
+            prop: 0,
+            body: [sending_document]
+        })
+        if (!resp.Success) throw REMARKABLEAPI.exception.upload_request_error(resp.Message)
+        return resp
+    }
 
     async update_status(doc, changed_doc_data) {
         let modification_date = new Date().toISOString()
@@ -126,9 +142,16 @@ class REMARKABLEAPI {
         return resp.Success
     }
 
-    // async delete() {
-
-    // }
+    async delete(doc) {
+        let resp = await this.api({
+            url: await this.storage_url_maker(delete_ep),
+            method: 'PUT',
+            prop: 0,
+            body: [doc]
+        })
+        if (!resp.Success) throw REMARKABLEAPI.exception.delete_error(resp.Message)
+        return resp.Success
+    }
 
     // ---------------------------------- UTILS
 
@@ -150,12 +173,53 @@ class REMARKABLEAPI {
         return (await this.docs_paths()).filter(({ Parent, _path }) => Parent != 'trash' && _path === undefined)
     }
 
+    async trashed_docs() {
+        return (await this.docs_paths()).filter(({ Parent }) => Parent == 'trash')
+    }
+
     async get_path(path) {
+        if (path == '') {
+            return { ID: '' }
+        } else if (path == 'trash') {
+            return { ID: 'trash' }
+        }
         return (await this.docs_paths()).filter(({ _path }) => _path == path)[0]
     }
 
     async get_ID(id) {
         return (await this.docs_paths()).filter(({ ID }) => ID == id)[0]
+    }
+
+    async upload_zip_data(name, parent_path, type, zip_map) {
+        let parent = await this.get_path(parent_path)
+        if (!parent) throw REMARKABLEAPI.exception.path_not_found(parent_path)
+        let { ID, BlobURLPut } = await this.upload_request()
+        let zip_map_named = Object.fromEntries(Object.entries(zip_map)
+            .map(([file_path, content]) => [
+                `${ID}.${file_path}`,
+                Buffer.isBuffer(content) ?
+                    content :
+                    typeof content == 'object' ?
+                        Buffer.from(JSON.stringify(content)) :
+                        Buffer.from(content)
+            ])
+        )
+        let zip = new ADMZIP()
+        Object.entries(zip_map_named).forEach(([file_path, content_buffer]) => zip.addFile(file_path, content_buffer))
+        let zip_buffer = zip.toBuffer()
+        let resp = await this.api({
+            url: BlobURLPut,
+            method: 'PUT',
+            raw_body: zip_buffer,
+            expected: null
+        })
+        let base_document = {
+            Parent: parent.ID,
+            Bookmarked: false,
+            Type: type,
+            VissibleName: name,
+        }
+        return await this.update_status({ ID, Version: 0 }, base_document)
     }
 
     // ---------------------------------- DATA RETREIAVAL
@@ -167,11 +231,21 @@ class REMARKABLEAPI {
     async unlink(path) {
         let doc = await this.get_path(path)
         if (!doc) throw REMARKABLEAPI.exception.path_not_found(path)
-        return await this.update_status(doc, { Parent: 'trash' })
+        return await this.delete(doc)
+        // return await this.update_status(doc, { Parent: 'trash' })
     }
 
-    // async mkdir(path) {
-    // }
+    async mkdir(path) {
+        let path_elements = path.split('/')
+        let name = path_elements.pop()
+        let zip_content = { 'content': '{}' }
+        return await this.upload_zip_data(
+            name, path_elements.join('/'),
+            REMARKABLEAPI.type.collection,
+            zip_content
+        )
+    }
+
 
     // async write_pdf(path, pdf_path) {
     // }
@@ -197,9 +271,16 @@ REMARKABLEAPI.device_desc = {
     }
 }
 
+REMARKABLEAPI.type = {
+    document: 'DocumentType',
+    collection: 'CollectionType'
+}
+
 REMARKABLEAPI.exception = {
     path_not_found: (path) => `path "${path}" not found.`,
-    update_error: (error) => `error while updating: "${error}"`
+    update_error: (error) => `error while updating: "${error}"`,
+    upload_request_error: (error) => `error while requesting for upload: "${error}"`,
+    delete_error: (error) => `error while deleting: "${error}"`
 }
 
 const all_device_desc = Object.values(REMARKABLEAPI.device_desc).map(sub => Object.values(sub)).flat()
