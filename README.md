@@ -239,23 +239,23 @@ RmCJS.notification.event.document_deleted
 
 ### Basic data manipulation
 
-### `exists (path)`
+#### `exists (path)`
  - **arguments**
 	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to check
  - **output** Boolean value `true` or `false`
 
-### `unlink (path)`
+#### `unlink (path)`
  - **arguments**
 	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to trash
  - **output** Boolean value `true` or `false`
 
-### `move (from_path, to_parent)`
+#### `move (from_path, to_parent)`
  - **arguments**
 	- *`from_path`* the moving document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
 	- *`to_parent`* the parent folder's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
  - **output** Document (the new document data)
 
-### `rename (path, new_name)`
+#### `rename (path, new_name)`
  - **arguments**
 	- *`path`* the renaming document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
 	- *`new_name`* the document's new name
@@ -264,25 +264,25 @@ RmCJS.notification.event.document_deleted
 
 ### File content
 
-### `write_zip (path, zip_map, type)`
+#### `write_zip (path, zip_map, type)`
  - **arguments**
 	- *`path`* the document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) for data writing (can be existing or not)
 	- *`zip_map`* the [ZIP MAP](https://github.com/hugodecasta/remarkable-cloud-js#zip-map-data-representation) data
 	- *`type`* the [document type](https://github.com/hugodecasta/remarkable-cloud-js#document-types)
  - **output** Boolean value `true` or `false`
 
-### `read_zip (path)`
+#### `read_zip (path)`
  - **arguments**
 	- *`path`* the [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path) to check
  - **output** Boolean value `true` or `false`
 
 
-### `mkdir (path)`
+#### `mkdir (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
 
-### `copy (path)`
+#### `copy (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
@@ -290,22 +290,22 @@ RmCJS.notification.event.document_deleted
 
 ### Specific file content
 
-### `write_pdf* (path)`
+#### `write_pdf* (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
 
-### `read_pdf (path)`
+#### `read_pdf (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
 
-### `write_epub (path)`
+#### `write_epub (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
 
-### `read_epub (path)`
+#### `read_epub (path)`
  - **arguments**
 	- *`path`* the path to check
  - **output** Boolean value `true` or `false`
