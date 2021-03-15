@@ -378,7 +378,7 @@ class REMARKABLEAPI {
         return new_doc
     }
 
-    async write_file_type(path, local_path, file_type, meta_override) {
+    async write_file_type(path, local_path, file_type, meta_override, path_reader = fs.readFileSync) {
         return await this.write_zip(path, {
             '{ID}.content': {
                 extraMetadata: {},
@@ -392,8 +392,13 @@ class REMARKABLEAPI {
                 ...meta_override
             },
             '{ID}.pagedata': [],
-            [`{ID}.${file_type}`]: fs.readFileSync(local_path)
+            [`{ID}.${file_type}`]: await path_reader(local_path)
         }, REMARKABLEAPI.type.document)
+    }
+    async write_file_from_url(path, url, file_type, meta_override) {
+        return await this.write_file_type(path, url, file_type, meta_override, async (url) =>
+            await (await fetch(url)).buffer()
+        )
     }
 
     async read_file_type(path, file_type) {
@@ -403,12 +408,18 @@ class REMARKABLEAPI {
     async write_pdf(path, pdf_path) {
         return await this.write_file_type(path, pdf_path, 'pdf')
     }
+    async write_pdf_from_url(path, pdf_url) {
+        return await this.write_file_from_url(path, pdf_url, 'pdf')
+    }
     async read_pdf(path) {
         return await this.read_file_type(path, 'pdf')
     }
 
     async write_epub(path, epub_path) {
         return await this.write_file_type(path, epub_path, 'epub', { margins: 100 })
+    }
+    async write_epub_from_url(path, epub_url) {
+        return await this.write_file_from_url(path, epub_url, 'epub', { margins: 100 })
     }
     async read_epub(path) {
         return await this.read_file_type(path, 'epub')

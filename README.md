@@ -23,6 +23,7 @@ Inspired by
     - [X] copy path
     - [X] read/write pdf
     - [X] read/write ePub
+    - [X] write from url
   * [X] cloud live notifications
     - [X] main data feed (all updates)
     - [X] subscription data feed (specific file/folder updates)
@@ -322,6 +323,12 @@ found here
 	- *`pdf_path`* the local PDF file path
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
+#### `write_pdf_from_url* (path, pdf_url)`
+ - **arguments**
+	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+	- *`pdf_url`* the remote PDF file URL
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
 #### `read_pdf (path)`
  - **arguments**
 	- *`path`* the existing PDF document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
@@ -331,6 +338,12 @@ found here
  - **arguments**
 	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
 	- *`epub_path`* the local ePub file path
+ - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
+
+#### `write_epub_from_url* (path, epub_url)`
+ - **arguments**
+	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
+	- *`pdf_url`* the remote ePub file URL
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
 #### `read_epub (path)`
