@@ -361,7 +361,7 @@ class REMARKABLEAPI {
 
     async mkdir(path) {
         if (await this.get_path(path)) throw REMARKABLEAPI.exception.path_already_exists_error(path)
-        return write_zip(path, { "{ID}.content": {} }, REMARKABLEAPI.type.collection)
+        return this.write_zip(path, { "{ID}.content": {} }, REMARKABLEAPI.type.collection)
     }
 
     async copy(from_path, to_path, recursive = true) {
