@@ -323,7 +323,7 @@ found here
 	- *`pdf_path`* the local PDF file path
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
-#### `write_pdf_from_url* (path, pdf_url)`
+#### `write_pdf_from_url (path, pdf_url)`
  - **arguments**
 	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
 	- *`pdf_url`* the remote PDF file URL
@@ -340,10 +340,10 @@ found here
 	- *`epub_path`* the local ePub file path
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
-#### `write_epub_from_url* (path, epub_url)`
+#### `write_epub_from_url (path, epub_url)`
  - **arguments**
 	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
-	- *`pdf_url`* the remote ePub file URL
+	- *`epub_url`* the remote ePub file URL
  - **output** [Document](https://github.com/hugodecasta/remarkable-cloud-js#document-representation)
 
 #### `read_epub (path)`
