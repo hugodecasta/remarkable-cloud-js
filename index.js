@@ -405,21 +405,21 @@ class REMARKABLEAPI {
         return (await this.read_zip(path))[`{ID}.${file_type}`]
     }
 
-    async write_pdf(path, pdf_path) {
-        return await this.write_file_type(path, pdf_path, 'pdf')
+    async write_pdf(path, pdf_path, metadata = {}) {
+        return await this.write_file_type(path, pdf_path, 'pdf', metadata)
     }
-    async write_pdf_from_url(path, pdf_url) {
-        return await this.write_file_from_url(path, pdf_url, 'pdf')
+    async write_pdf_from_url(path, pdf_url, metadata = {}) {
+        return await this.write_file_from_url(path, pdf_url, 'pdf', metadata)
     }
     async read_pdf(path) {
         return await this.read_file_type(path, 'pdf')
     }
 
-    async write_epub(path, epub_path) {
-        return await this.write_file_type(path, epub_path, 'epub', { margins: 100 })
+    async write_epub(path, epub_path, metadata = {}) {
+        return await this.write_file_type(path, epub_path, 'epub', { margins: 100, ...metadata })
     }
-    async write_epub_from_url(path, epub_url) {
-        return await this.write_file_from_url(path, epub_url, 'epub', { margins: 100 })
+    async write_epub_from_url(path, epub_url, metadata = {}) {
+        return await this.write_file_from_url(path, epub_url, 'epub', { margins: 100, ...metadata })
     }
     async read_epub(path) {
         return await this.read_file_type(path, 'epub')
