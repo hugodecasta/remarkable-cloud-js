@@ -317,7 +317,7 @@ found here
 
 ### Specific file content
 
-#### `write_pdf* (path, pdf_path, metadata)`
+#### `write_pdf (path, pdf_path, metadata)`
  - **arguments**
 	- *`path`* newly added document's [path](https://github.com/hugodecasta/remarkable-cloud-js#document-path)
 	- *`pdf_path`* the local PDF file path
